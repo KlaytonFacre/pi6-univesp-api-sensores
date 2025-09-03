@@ -69,7 +69,8 @@ Recebe uma medição enviada por um sensor.
 ```
 
 **Response (JSON):**
-```json{
+```json
+{
   "id": 1,
   "timestamp": "2025-09-02T21:15:30",
   "sensorId": 1,
@@ -83,16 +84,15 @@ Recebe uma medição enviada por um sensor.
 
 Após iniciar a aplicação, a documentação interativa estará disponível em:
 
-http://localhost:8080/swagger-ui.html
+`http://localhost:8080/swagger-ui.html`
 
-🚀 Como executar o projeto
+## Passos para rodar localmente usando maven
 Pré-requisitos:
 
 - JDK 17+
 - Maven 3.9+
 - MySQL 8 com extensão espacial habilitada
 
-## Passos para rodar localmente usando maven
 ### Clonar o repositório
 ```bash
 git clone https://github.com/KlaytonFacre/pi6-univesp-api-sensores.git
@@ -253,16 +253,120 @@ docker run -d --name pi6-api -p 8080:8080 \
 klaytonf/pi6-api-sensores:latest
 ```
 
+### Opção D) Docker Compose com API + MySQL (ambiente de testes “do zero”)
+
+Ideal **para quem não tem MySQL instalado e só quer subir tudo e testar**.
+O Compose cria a rede, o banco e a API automaticamente.
+
+1) Crie o arquivo .env no mesmo diretório do compose (**Não commite este arquivo com senhas reais**).
+```bash
+# Banco / credenciais de teste
+MYSQL_ROOT_PASSWORD=Password01
+DATABASE_NAME=api_sensores
+DATABASE_USER=api_user
+DATABASE_PASSWORD=ApiPassw0rd!
+
+# (opcional) Ajuste de timezone, se quiser
+TZ=America/Sao_Paulo
+ 
+```
+
+2) Crie o `docker-compose.yml`
+```yaml
+services:
+  db:
+    image: mysql:8.0
+    container_name: pi6-db
+    command: [
+      "--default-authentication-plugin=caching_sha2_password",
+      "--character-set-server=utf8mb4",
+      "--collation-server=utf8mb4_0900_ai_ci",
+      "--skip-log-bin"
+    ]
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Defina MYSQL_ROOT_PASSWORD no .env}
+      MYSQL_DATABASE: ${DATABASE_NAME:?Defina DATABASE_NAME no .env}
+      MYSQL_USER: ${DATABASE_USER:?Defina DATABASE_USER no .env}
+      MYSQL_PASSWORD: ${DATABASE_PASSWORD:?Defina DATABASE_PASSWORD no .env}
+      TZ: ${TZ:-America/Sao_Paulo}
+    volumes:
+      - db_data:/var/lib/mysql
+      # (opcional) scripts .sql iniciais: criar views, seeds, etc.
+      # - ./docker/mysql/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  api:
+    image: klaytonf/pi6-api-sensores:latest
+    container_name: pi6-api
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      # A API exige estas 4 variáveis (validadas no entrypoint)
+      DATABASE_HOST: db
+      DATABASE_NAME: ${DATABASE_NAME:?Defina DATABASE_NAME no .env}
+      DATABASE_USER: ${DATABASE_USER:?Defina DATABASE_USER no .env}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:?Defina DATABASE_PASSWORD no .env}
+      # (opcional) porta padrão 3306 — só defina se quiser mudar
+      # DATABASE_PORT: "3306"
+      # (opcional) timezone do container
+      TZ: ${TZ:-America/Sao_Paulo}
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+volumes:
+  db_data:
+
+```
+
+> Por padrão, o Compose cria uma rede bridge interna e a API acessa o MySQL pelo nome do serviço db.
+O `depends_on: condition: service_healthy` garante que a API só inicia após o banco estar aceitando conexões.
+
+3) Subir, verificar e acessar
+```bash
+docker compose up -d
+docker compose logs -f db
+docker compose logs -f api 
+```
+
+- Acesse a API: `http://localhost:8080`
+  - Swagger (se habilitado): `http://localhost:8080/swagger-ui/index.html`
+  - Actuator (se habilitado): `http://localhost:8080/actuator/health`
+
+4) Atualizar para a última imagem
+```bash
+docker compose pull
+docker compose up -d --force-recreate
+```
+
+5) Encerrar e limpar
+- Para apenas parar os serviços: `docker compose down`
+
+- Para parar e apagar dados do MySQL (volume): `docker compose down -v`
+
+Notas
+
+- Flyway: as migrações estão empacotadas no JAR e `spring.flyway.enabled=true` está setado no `application-prod.properties`, elas rodam automaticamente na primeira subida.
+- Apple Silicon/ARM: se tiver problemas de compatibilidade, adicione platform: linux/amd64 no serviço db (raramente necessário com MySQL 8 oficial).
+- Apenas testes: as senhas de exemplo não devem ser usadas em produção. Para produção, use secrets/variáveis seguras e usuário não-root (já contemplado acima com api_user).
+
 ### Troubleshooting rápido
 
-1- Porta não abre
+1) Porta não abre
 
 - Confirme publicação: docker ps → deve aparecer 0.0.0.0:8080->8080/tcp.
 - Garanta que a app está ouvindo em 0.0.0.0 (não 127.0.0.1).
 
 - Cheque logs: docker logs -f pi6-api.
 
-2- Erro de conexão com o banco
+2) Erro de conexão com o banco
 
 - Teste DNS/rede: API e MySQL na mesma rede (ex.: pi6-net).
 - Confirme variáveis: DATABASE_* corretas.
