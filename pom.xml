@@ -77,6 +77,11 @@
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
         </dependency>
+        <!-- >>> Necessário no Flyway 10+: plugin de banco para MySQL <<< -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-mysql</artifactId>
+        </dependency>
         <!-- Swagger para documentacao -->
         <dependency>
             <groupId>org.springdoc</groupId>
