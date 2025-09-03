@@ -92,7 +92,7 @@ Pré-requisitos:
 - Maven 3.9+
 - MySQL 8 com extensão espacial habilitada
 
-## Passos
+## Passos para rodar localmente usando maven
 ### Clonar o repositório
 ```bash
 git clone https://github.com/KlaytonFacre/pi6-univesp-api-sensores.git
@@ -104,6 +104,176 @@ cd pi6-univesp-api-sensores
 mvn spring-boot:run
 ```
 A aplicação sobe por padrão em http://localhost:8080.
+
+## Como rodar com Docker (passo a passo)
+
+Esta seção explica como executar a API em containers, reaproveitando um MySQL já existente (ex.: MySQL8) e garantindo configuração por variáveis de ambiente no perfil prod.
+
+### Pré-requisitos
+
+- Docker / Docker Desktop instalado.
+- Um MySQL 8.x acessível:
+  - Pode ser um container já existente (ex.: MySQL8) ou um banco externo.
+  - O schema (banco) de aplicação (ex.: api_sensores) deve existir.
+  - Recomendado: usuário específico do app (evitar root em produção).
+
+Para criar rapidamente um usuário e dar acesso ao schema:
+```bash
+docker exec -it MySQL8 mysql -uroot -p \
+  -e "CREATE USER IF NOT EXISTS 'api_user'@'%' IDENTIFIED BY 'ApiPassw0rd!'; \
+      CREATE DATABASE IF NOT EXISTS api_sensores; \
+      GRANT ALL PRIVILEGES ON api_sensores.* TO 'api_user'@'%'; \
+      FLUSH PRIVILEGES;"
+```
+
+### Variáveis de Ambiente (obrigatórias)
+
+A imagem exige as quatro variáveis (validadas no entrypoint), além do SPRING_PROFILES_ACTIVE=prod:
+
+- `DATABASE_HOST` – host do MySQL (ex.: MySQL8, db, host.docker.internal, IP, etc.)
+- `DATABASE_NAME` – nome do schema (ex.: api_sensores)
+- `DATABASE_USER` – usuário do banco (ex.: api_user)
+- `DATABASE_PASSWORD` – senha do banco
+
+No `application-prod.properties` a URL é montada como:
+```dockerfile
+jdbc:mysql://${DATABASE_HOST}:${DATABASE_PORT:3306}/${DATABASE_NAME}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Sao_Paulo
+
+```
+
+### Opção A) Usando seu MySQL já existente em rede bridge compartilhada (recomendado)
+
+Crie (uma vez) uma rede bridge definida pelo usuário:
+
+```bash
+docker network create pi6-net
+```
+
+Conecte seu container MySQL existente a essa rede:
+
+```bash
+docker network connect pi6-net MySQL8
+```
+
+Suba a API na mesma rede, passando as variáveis obrigatórias:
+
+```bash
+docker run -d --name pi6-api --network pi6-net -p 8080:8080 \
+-e SPRING_PROFILES_ACTIVE=prod \
+-e DATABASE_HOST=MySQL8 \
+-e DATABASE_NAME=api_sensores \
+-e DATABASE_USER=api_user \
+-e DATABASE_PASSWORD=ApiPassw0rd! \
+klaytonf/pi6-api-sensores:latest
+```
+
+
+Verifique:
+
+```bash
+docker ps --format "table {{.Names}}\t{{.Ports}}\t{{.Status}}"
+docker logs -f pi6-api
+```
+
+
+Acesse: `http://localhost:8080`
+
+Se você usa Springdoc/OpenAPI: `http://localhost:8080/swagger-ui/index.html`
+
+Se usa Actuator (opcional): `http://localhost:8080/actuator/health`
+
+Dica: liste/inspecione redes e conexões:
+
+```bash
+docker network ls
+docker network inspect pi6-net
+```
+
+### Opção B) Docker Compose reaproveitando o mesmo MySQL existente (rede externa)
+
+Garanta que a rede pi6-net existe e que o MySQL8 está conectado (passos da Opção A).
+
+Crie um arquivo `.env` (no diretório do compose) com as variáveis:
+
+```dockerfile
+DOCKER_NETWORK=pi6-net
+DATABASE_HOST=MySQL8
+DATABASE_NAME=api_sensores
+DATABASE_USER=api_user
+DATABASE_PASSWORD=ApiPassw0rd!
+```
+
+Crie `docker-compose.yml` apenas da API, importando a rede externa:
+
+```yaml
+services:
+  api:
+    image: klaytonf/pi6-api-sensores:latest
+    networks: [appnet]
+    ports:
+      - "8080:8080"
+    environment:
+    SPRING_PROFILES_ACTIVE: prod
+    DATABASE_HOST: ${DATABASE_HOST:?Defina DATABASE_HOST no .env}
+    DATABASE_NAME: ${DATABASE_NAME:?Defina DATABASE_NAME no .env}
+    DATABASE_USER: ${DATABASE_USER:?Defina DATABASE_USER no .env}
+  DATABASE_PASSWORD: ${DATABASE_PASSWORD:?Defina DATABASE_PASSWORD no .env}
+
+networks:
+  appnet:
+    external: true
+    name: ${DOCKER_NETWORK:?Defina DOCKER_NETWORK no .env}
+```
+
+
+Suba a API:
+
+```bash
+docker compose up -d api
+docker compose logs -f api
+```
+
+### Opção C) MySQL no host (sem container MySQL)
+
+Docker Desktop (Windows/Mac): use `host.docker.internal` como `DATABASE_HOST`.
+
+Linux: use o gateway da bridge (172.17.0.1) ou adicione:
+
+`--add-host=host.docker.internal:host-gateway` e aponte para `host.docker.internal`.
+
+Exemplo:
+
+```bash
+docker run -d --name pi6-api -p 8080:8080 \
+-e SPRING_PROFILES_ACTIVE=prod \
+-e DATABASE_HOST=host.docker.internal \
+-e DATABASE_NAME=api_sensores \
+-e DATABASE_USER=api_user \
+-e DATABASE_PASSWORD=ApiPassw0rd! \
+klaytonf/pi6-api-sensores:latest
+```
+
+### Troubleshooting rápido
+
+1- Porta não abre
+
+- Confirme publicação: docker ps → deve aparecer 0.0.0.0:8080->8080/tcp.
+- Garanta que a app está ouvindo em 0.0.0.0 (não 127.0.0.1).
+
+- Cheque logs: docker logs -f pi6-api.
+
+2- Erro de conexão com o banco
+
+- Teste DNS/rede: API e MySQL na mesma rede (ex.: pi6-net).
+- Confirme variáveis: DATABASE_* corretas.
+- Teste ping ao host do banco a partir da API: `docker exec -it pi6-api sh -lc "getent hosts $DATABASE_HOST || ping -c1 $DATABASE_HOST || true"`
+- Verifique permissões do usuário MySQL ('api_user'@'%').
+
+### Notas de Segurança/Prod
+
+- Evite root para a aplicação; use um usuário do app restrito ao schema.
+- Não commite senhas: use .env local, variáveis seguras, secrets do orquestrador.
+- Backups: se usar volume para o MySQL, configure política de backup do volume.
 
 ## Grupo 9 – UNIVESP
 
