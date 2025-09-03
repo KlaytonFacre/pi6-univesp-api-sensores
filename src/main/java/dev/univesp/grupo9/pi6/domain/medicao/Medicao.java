@@ -1,6 +1,7 @@
 package dev.univesp.grupo9.pi6.domain.medicao;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -25,6 +26,7 @@ public class Medicao {
     @CreationTimestamp
     private LocalDateTime timestamp;
 
+    @NotNull
     private Long sensorId;
 
     // MySQL: POINT com SRID 4326 (WGS84) - Hibernate 6+
