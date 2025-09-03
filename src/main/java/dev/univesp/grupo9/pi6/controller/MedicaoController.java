@@ -1,6 +1,6 @@
 package dev.univesp.grupo9.pi6.controller;
 
-import dev.univesp.grupo9.pi6.domain.medicao.MedicaoDTO;
+import dev.univesp.grupo9.pi6.domain.medicao.MedicaoRequestDTO;
 import dev.univesp.grupo9.pi6.domain.medicao.MedicaoResponseDTO;
 import dev.univesp.grupo9.pi6.service.MedicaoService;
 import jakarta.validation.Valid;
@@ -22,7 +22,7 @@ public class MedicaoController {
     private final MedicaoService medicaoService;
 
     @PostMapping
-    public ResponseEntity<MedicaoResponseDTO> criarMedicao(@Valid @RequestBody MedicaoDTO dto) {
+    public ResponseEntity<MedicaoResponseDTO> criarMedicao(@Valid @RequestBody MedicaoRequestDTO dto) {
         var salvo = medicaoService.salvarMedicao(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(salvo);
     }

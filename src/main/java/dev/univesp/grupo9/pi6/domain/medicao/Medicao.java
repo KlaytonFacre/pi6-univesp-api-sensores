@@ -27,7 +27,7 @@ public class Medicao {
 
     private Long sensorId;
 
-    // MySQL: POINT com SRID 4326 (WGS84) Hibernate 6+
+    // MySQL: POINT com SRID 4326 (WGS84) - Hibernate 6+
     @JdbcTypeCode(SqlTypes.GEOMETRY)
     @Column(columnDefinition = "POINT SRID 4326", nullable = false)
     private Point local;

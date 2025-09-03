@@ -1,6 +1,6 @@
 package dev.univesp.grupo9.pi6.service;
 
-import dev.univesp.grupo9.pi6.domain.medicao.MedicaoDTO;
+import dev.univesp.grupo9.pi6.domain.medicao.MedicaoRequestDTO;
 import dev.univesp.grupo9.pi6.domain.medicao.Medicao;
 import dev.univesp.grupo9.pi6.domain.medicao.MedicaoRepository;
 import dev.univesp.grupo9.pi6.domain.medicao.MedicaoResponseDTO;
@@ -24,7 +24,7 @@ public class MedicaoService {
             new GeometryFactory(new PrecisionModel(), 4326);
 
     @Transactional
-    public MedicaoResponseDTO salvarMedicao(MedicaoDTO dto) {
+    public MedicaoResponseDTO salvarMedicao(MedicaoRequestDTO dto) {
         // Converter BigDecimal -> double
         double lat = dto.getLatitude().doubleValue();
         double lon = dto.getLongitude().doubleValue();
