@@ -33,4 +33,6 @@ jobs:
         with:
           context: .
           push: true
-          tags: klaytonf/pi6-api-sensores:${{ env.TAG }}
+          tags: |
+            klaytonf/pi6-api-sensores:${{ env.TAG }}
+            klaytonf/pi6-api-sensores:latest
