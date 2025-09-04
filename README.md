@@ -48,7 +48,7 @@ Principais metas do grupo:
     - Retorna resposta simplificada ao cliente.
 
 3. **Banco de Dados MySQL + Hibernate Spatial**
-    - Tabela `medicao` com índice espacial (`SPATIAL INDEX`) para consultas rápidas.
+    - Tabela `noiseSample` com índice espacial (`SPATIAL INDEX`) para consultas rápidas.
     - Suporte a consultas geográficas (pontos dentro de raio, área, proximidade).
 
 ---
@@ -99,11 +99,11 @@ git clone https://github.com/KlaytonFacre/pi6-univesp-api-sensores.git
 cd pi6-univesp-api-sensores
 ```
 
-### Rodar migrations do Flyway e iniciar a API
+### Iniciar a API
 ```bash
 mvn spring-boot:run
 ```
-A aplicação sobe por padrão em http://localhost:8080.
+A aplicação sobe por padrão em `http://localhost:8080`.
 
 ## Como rodar com Docker (passo a passo)
 
@@ -376,7 +376,7 @@ Notas
 ### Notas de Segurança/Prod
 
 - Evite root para a aplicação; use um usuário do app restrito ao schema.
-- Não commite senhas: use .env local, variáveis seguras, secrets do orquestrador.
+- Não commite senhas: use `.env` local, variáveis seguras, secrets do orquestrador.
 - Backups: se usar volume para o MySQL, configure política de backup do volume.
 
 ## Grupo 9 – UNIVESP

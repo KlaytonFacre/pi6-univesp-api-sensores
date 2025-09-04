@@ -1,11 +1,11 @@
-package dev.univesp.grupo9.pi6.domain.medicao;
+package dev.univesp.grupo9.pi6.domain.noise;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-public record MedicaoResponseDTO(
+public record NoiseSampleResponseDTO(
         Long id,
-        LocalDateTime timestamp,
+        LocalDateTime createdAt,
         Long sensorId,
         BigDecimal latitude,
         BigDecimal longitude,

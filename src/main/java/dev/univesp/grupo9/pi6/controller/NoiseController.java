@@ -1,8 +1,8 @@
 package dev.univesp.grupo9.pi6.controller;
 
-import dev.univesp.grupo9.pi6.domain.medicao.MedicaoRequestDTO;
-import dev.univesp.grupo9.pi6.domain.medicao.MedicaoResponseDTO;
-import dev.univesp.grupo9.pi6.service.MedicaoService;
+import dev.univesp.grupo9.pi6.domain.noise.NoiseSampleRequestDTO;
+import dev.univesp.grupo9.pi6.domain.noise.NoiseSampleResponseDTO;
+import dev.univesp.grupo9.pi6.service.NoiseService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,15 +13,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/medicoes")
-public class MedicaoController {
+@RequestMapping("/noise")
+public class NoiseController {
 
     @Autowired
-    private MedicaoService medicaoService;
+    private NoiseService noiseService;
 
     @PostMapping
-    public ResponseEntity<MedicaoResponseDTO> criarMedicao(@Valid @RequestBody MedicaoRequestDTO dto) {
-        var salvo = medicaoService.salvarMedicao(dto);
+    public ResponseEntity<NoiseSampleResponseDTO> createSampleOnDatabase(@Valid @RequestBody NoiseSampleRequestDTO dto) {
+        var salvo = noiseService.saveSample(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(salvo);
     }
 }

@@ -24,9 +24,13 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Set image tag
+        id: vars
+        run: echo "TAG=$(date +'%Y%m%d.%H%M%S')-${GITHUB_SHA::7}" >> $GITHUB_ENV
+
       - name: Build and push
         uses: docker/build-push-action@v4
         with:
           context: .
           push: true
-          tags: klaytonf/pi6-api-sensores:latest
+          tags: klaytonf/pi6-api-sensores:${{ env.TAG }}

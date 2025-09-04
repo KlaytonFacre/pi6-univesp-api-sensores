@@ -1,4 +1,4 @@
-package dev.univesp.grupo9.pi6.domain.medicao;
+package dev.univesp.grupo9.pi6.domain.noise;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -17,14 +17,14 @@ import java.time.LocalDateTime;
 @Setter
 @Getter
 @NoArgsConstructor
-public class Medicao {
+public class NoiseSample {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @CreationTimestamp
-    private LocalDateTime timestamp;
+    private LocalDateTime createdAt;
 
     @NotNull
     private Long sensorId;

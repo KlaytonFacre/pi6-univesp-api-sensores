@@ -1,9 +1,9 @@
 package dev.univesp.grupo9.pi6.service;
 
-import dev.univesp.grupo9.pi6.domain.medicao.Medicao;
-import dev.univesp.grupo9.pi6.domain.medicao.MedicaoRepository;
-import dev.univesp.grupo9.pi6.domain.medicao.MedicaoRequestDTO;
-import dev.univesp.grupo9.pi6.domain.medicao.MedicaoResponseDTO;
+import dev.univesp.grupo9.pi6.domain.noise.NoiseSample;
+import dev.univesp.grupo9.pi6.domain.noise.NoiseSampleRepository;
+import dev.univesp.grupo9.pi6.domain.noise.NoiseSampleRequestDTO;
+import dev.univesp.grupo9.pi6.domain.noise.NoiseSampleResponseDTO;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
@@ -15,17 +15,17 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 
 @Service
-public class MedicaoService {
+public class NoiseService {
 
     @Autowired
-    private MedicaoRepository medicaoRepository;
+    private NoiseSampleRepository noiseSampleRepository;
 
     // GeometryFactory para criar os Points (SRID 4326 -> WGS84)
     private final GeometryFactory geometryFactory =
             new GeometryFactory(new PrecisionModel(), 4326);
 
     @Transactional
-    public MedicaoResponseDTO salvarMedicao(MedicaoRequestDTO dto) {
+    public NoiseSampleResponseDTO saveSample(NoiseSampleRequestDTO dto) {
         // Converter BigDecimal -> double
         double lat = dto.latitude().doubleValue();
         double lon = dto.longitude().doubleValue();
@@ -35,21 +35,21 @@ public class MedicaoService {
         local.setSRID(4326);
 
         // Montar entidade
-        Medicao medicao = new Medicao();
-        medicao.setSensorId(dto.sensorId());
-        medicao.setLocal(local);
-        medicao.setNoiseDb(dto.noiseDb());
+        NoiseSample noiseSample = new NoiseSample();
+        noiseSample.setSensorId(dto.sensorId());
+        noiseSample.setLocal(local);
+        noiseSample.setNoiseDb(dto.noiseDb());
 
         // Persistir
-        Medicao salvo = medicaoRepository.save(medicao);
+        NoiseSample sample = noiseSampleRepository.save(noiseSample);
 
-        return new MedicaoResponseDTO(
-                salvo.getId(),
-                salvo.getTimestamp(),
-                salvo.getSensorId(),
-                BigDecimal.valueOf(salvo.getLocal().getY()), // latitude
-                BigDecimal.valueOf(salvo.getLocal().getX()), // longitude
-                salvo.getNoiseDb()
+        return new NoiseSampleResponseDTO(
+                sample.getId(),
+                sample.getCreatedAt(),
+                sample.getSensorId(),
+                BigDecimal.valueOf(sample.getLocal().getY()), // latitude
+                BigDecimal.valueOf(sample.getLocal().getX()), // longitude
+                sample.getNoiseDb()
         );
     }
 }

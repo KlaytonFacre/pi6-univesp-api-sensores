@@ -1,4 +1,4 @@
-package dev.univesp.grupo9.pi6.domain.medicao;
+package dev.univesp.grupo9.pi6.domain.noise;
 
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Positive;
 
 import java.math.BigDecimal;
 
-public record MedicaoRequestDTO(
+public record NoiseSampleRequestDTO(
         @NotNull(message = "O sensorId é obrigatório")
         Long sensorId,
 
