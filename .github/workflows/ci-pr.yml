@@ -1,0 +1,74 @@
+name: CI (PR)
+
+on:
+  pull_request:
+    branches: [ "main" ]
+    paths-ignore:
+      - "README.md"
+      - ".github/ISSUE_TEMPLATE/**"
+      - ".github/workflows/release.yml"
+
+concurrency:
+  group: ci-pr-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: Build & Test (Maven)
+        run: mvn -B -ntp verify
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports
+          path: |
+            **/target/surefire-reports/**
+            **/target/failsafe-reports/**
+          if-no-files-found: ignore
+          retention-days: 7
+
+      # Gera a tag local no padrão pr<NUM>-YYYYMMDD.HHMMSS-<sha>
+      - name: Make PR+timestamp+sha tag (America/Sao_Paulo)
+        id: ts
+        run: |
+          ts=$(TZ=America/Sao_Paulo date +'%Y%m%d.%H%M%S')
+          sha=$(echo "${GITHUB_SHA}" | cut -c1-7)
+          echo "tag=pr${{ github.event.number }}-${ts}-${sha}" >> $GITHUB_OUTPUT
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image (no push)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          load: true
+          tags: |
+            pi6-api:${{ steps.ts.outputs.tag }}
+
+      - name: Smoke test container
+        run: |
+          docker run -d --rm -p 8080:8080 --name sut pi6-api:${{ steps.ts.outputs.tag }}
+          sleep 15
+          docker logs sut | tail -n 200 || true
+          # Se houver healthcheck HTTP, descomente:
+          # curl -fsS http://localhost:8080/actuator/health || true
+          docker stop sut
