@@ -1,0 +1,21 @@
+CREATE TABLE sensors (
+  id BIGINT NOT NULL AUTO_INCREMENT,
+  public_id BINARY(16) NOT NULL UNIQUE,
+  name VARCHAR(80) NOT NULL,
+  code VARCHAR(40) NOT NULL,
+  owner_id BIGINT NOT NULL,
+  serial_number VARCHAR(60),
+  last_seen_at TIMESTAMP(6) NULL,
+  status VARCHAR(20) NOT NULL,
+  created_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  created_by BIGINT,
+  updated_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  updated_by BIGINT,
+  deleted_at TIMESTAMP(6) NULL,
+  deleted_by BIGINT,
+  delete_reason VARCHAR(255),
+  version BIGINT NOT NULL,
+  PRIMARY KEY (id),
+  CONSTRAINT fk_sensor_owner FOREIGN KEY (owner_id) REFERENCES owners (id),
+  CONSTRAINT uq_owner_code UNIQUE (owner_id, code)
+) ENGINE=InnoDB;
