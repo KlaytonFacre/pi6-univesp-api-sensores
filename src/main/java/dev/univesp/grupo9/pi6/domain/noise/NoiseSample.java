@@ -21,9 +21,7 @@ import java.time.Instant;
                 @Index(name = "ix_noise_sensor_time", columnList = "sensor_id,captured_at")
         }
 )
-@Getter
-@Setter
-@NoArgsConstructor
+@Getter @Setter @NoArgsConstructor
 public class NoiseSample extends AbstractBaseEntity {
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
@@ -38,15 +36,15 @@ public class NoiseSample extends AbstractBaseEntity {
     @Column(columnDefinition = "POINT SRID 4326", nullable = false)
     private Point local;
 
-    @Column(name = "laeq", precision = 8, scale = 2, nullable = false)
+    @Column(precision = 8, scale = 2, nullable = false)
     private BigDecimal laeq;
 
-    @Column(name = "lmax", precision = 8, scale = 2)
+    @Column(precision = 8, scale = 2)
     private BigDecimal lmax;
 
-    @Column(name = "lmin", precision = 8, scale = 2)
+    @Column(precision = 8, scale = 2)
     private BigDecimal lmin;
 
-    @Column(name = "window_seconds", nullable = false)
+    @Column(nullable = false)
     private int windowSeconds;
 }

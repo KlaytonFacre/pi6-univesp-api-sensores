@@ -17,9 +17,7 @@ import lombok.Setter;
                 @Index(name = "ix_owner_email", columnList = "email")
         }
 )
-@Getter
-@Setter
-@NoArgsConstructor
+@Getter @Setter @NoArgsConstructor
 public class Owner extends AbstractBaseEntity {
 
     @NotBlank

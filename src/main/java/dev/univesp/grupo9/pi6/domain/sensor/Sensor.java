@@ -24,6 +24,7 @@ public class Sensor extends AbstractBaseEntity {
     @Column(nullable = false, length = 20)
     private String name;
 
+    // Codigo simples para melhor identificacao pratica do sensor
     @NotBlank
     @Column(nullable = false, length = 10)
     private String code;
