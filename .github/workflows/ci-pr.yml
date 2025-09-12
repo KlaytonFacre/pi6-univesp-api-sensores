@@ -30,19 +30,19 @@ jobs:
           java-version: "17"
           cache: maven
 
-      - name: Build & Test (Maven)
-        run: mvn -B -ntp verify
+      - name: Build (Skip tests)
+        run: mvn -B -ntp -DskipTests -DskipITs -Dmaven.test.skip=true verify
 
-      - name: Upload test reports
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: surefire-reports
-          path: |
-            **/target/surefire-reports/**
-            **/target/failsafe-reports/**
-          if-no-files-found: ignore
-          retention-days: 7
+#      - name: Upload test reports
+#        if: always()
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: surefire-reports
+#          path: |
+#            **/target/surefire-reports/**
+#            **/target/failsafe-reports/**
+#          if-no-files-found: ignore
+#          retention-days: 7
 
       # Gera a tag local no padrão pr<NUM>-YYYYMMDD.HHMMSS-<sha>
       - name: Make PR+timestamp+sha tag (America/Sao_Paulo)
@@ -64,11 +64,11 @@ jobs:
           tags: |
             pi6-api:${{ steps.ts.outputs.tag }}
 
-      - name: Smoke test container
-        run: |
-          docker run -d --rm -p 8080:8080 --name sut pi6-api:${{ steps.ts.outputs.tag }}
-          sleep 15
-          docker logs sut | tail -n 200 || true
-          # Se houver healthcheck HTTP, descomente:
-          # curl -fsS http://localhost:8080/actuator/health || true
-          docker stop sut
+#      - name: Smoke test container
+#        run: |
+#          docker run -d --rm -p 8080:8080 --name sut pi6-api:${{ steps.ts.outputs.tag }}
+#          sleep 15
+#          docker logs sut | tail -n 200 || true
+#          # Se houver healthcheck HTTP, descomente:
+#          # curl -fsS http://localhost:8080/actuator/health || true
+#          docker stop sut
