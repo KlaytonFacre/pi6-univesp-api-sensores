@@ -7,7 +7,6 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
@@ -17,7 +16,7 @@ import lombok.Setter;
                 @Index(name = "ix_owner_email", columnList = "email")
         }
 )
-@Getter @Setter @NoArgsConstructor
+@Getter @Setter
 public class Owner extends AbstractBaseEntity {
 
     @NotBlank

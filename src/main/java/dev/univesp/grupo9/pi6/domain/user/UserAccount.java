@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Set;
@@ -17,9 +16,7 @@ import java.util.Set;
                 @UniqueConstraint(name = "uq_user_account_username", columnNames = "username")
         }
 )
-@Getter
-@Setter
-@NoArgsConstructor
+@Getter @Setter
 public class UserAccount extends AbstractBaseEntity {
 
     @NotBlank

@@ -5,7 +5,6 @@ import dev.univesp.grupo9.pi6.domain.owner.Owner;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.Instant;
@@ -17,7 +16,7 @@ import java.time.Instant;
                 @UniqueConstraint(name = "uq_owner_code", columnNames = {"owner_id", "code"})
         }
 )
-@Getter @Setter @NoArgsConstructor
+@Getter @Setter
 public class Sensor extends AbstractBaseEntity {
 
     @NotBlank

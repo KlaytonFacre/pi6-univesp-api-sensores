@@ -13,7 +13,7 @@ import java.util.UUID;
 
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Getter @Setter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public abstract class AbstractBaseEntity {
 
@@ -54,4 +54,5 @@ public abstract class AbstractBaseEntity {
     void prePersist() {
         if (publicId == null) publicId = UUID.randomUUID();
     }
+
 }

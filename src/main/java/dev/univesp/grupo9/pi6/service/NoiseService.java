@@ -1,29 +1,29 @@
 package dev.univesp.grupo9.pi6.service;
 
+import dev.univesp.grupo9.pi6.domain.sample.NoiseSample;
+import dev.univesp.grupo9.pi6.domain.sample.NoiseSampleRepository;
+import dev.univesp.grupo9.pi6.domain.sample.NoiseSampleRequestDTO;
+import dev.univesp.grupo9.pi6.domain.sample.NoiseSampleResponseDTO;
 import dev.univesp.grupo9.pi6.domain.sensor.Sensor;
 import dev.univesp.grupo9.pi6.domain.sensor.SensorRepository;
-import dev.univesp.grupo9.pi6.domain.noise.NoiseSample;
-import dev.univesp.grupo9.pi6.domain.noise.NoiseSampleRepository;
-import dev.univesp.grupo9.pi6.domain.noise.NoiseSampleRequestDTO;
-import dev.univesp.grupo9.pi6.domain.noise.NoiseSampleResponseDTO;
-import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.PrecisionModel;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
 @Service
-@RequiredArgsConstructor
 public class NoiseService {
 
-    private final NoiseSampleRepository noiseSampleRepository;
-    private final SensorRepository sensorRepository;
+    @Autowired
+    private NoiseSampleRepository noiseSampleRepository;
+    @Autowired
+    private SensorRepository sensorRepository;
 
     // SRID 4326 (WGS84)
     private static final int SRID = 4326;
@@ -62,23 +62,11 @@ public class NoiseService {
         NoiseSample saved = noiseSampleRepository.save(entity);
 
         // 7) DTO de resposta
-        return new NoiseSampleResponseDTO(
-                saved.getPublicId(),
-                saved.getSensor().getPublicId(),
-                saved.getCapturedAt(),
-                saved.getLaeq(),
-                saved.getLmax(),
-                saved.getLmin(),
-                saved.getWindowSeconds(),
-                // latitude = Y; longitude = X
-                BigDecimal.valueOf(saved.getLocal().getY()),
-                BigDecimal.valueOf(saved.getLocal().getX())
-        );
+        return new NoiseSampleResponseDTO(saved);
     }
 
     public NoiseSampleResponseDTO getSampleByPublicId(UUID publicId) {
         var noiseSample = noiseSampleRepository.findByPublicId(publicId);
-
         return noiseSample.map(NoiseSampleResponseDTO::new).orElse(null);
     }
 }

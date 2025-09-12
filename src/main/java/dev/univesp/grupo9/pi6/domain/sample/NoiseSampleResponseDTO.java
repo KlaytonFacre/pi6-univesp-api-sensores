@@ -1,4 +1,4 @@
-package dev.univesp.grupo9.pi6.domain.noise;
+package dev.univesp.grupo9.pi6.domain.sample;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -14,6 +14,7 @@ public record NoiseSampleResponseDTO(
         int windowSeconds,
         BigDecimal latitude,
         BigDecimal longitude) {
+
     public NoiseSampleResponseDTO(NoiseSample noise) {
         this(noise.getPublicId(),
                 noise.getSensor().getPublicId(),

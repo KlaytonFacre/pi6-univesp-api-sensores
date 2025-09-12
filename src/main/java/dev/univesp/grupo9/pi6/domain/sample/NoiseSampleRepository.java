@@ -1,4 +1,4 @@
-package dev.univesp.grupo9.pi6.domain.noise;
+package dev.univesp.grupo9.pi6.domain.sample;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

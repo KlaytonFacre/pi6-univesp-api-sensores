@@ -1,10 +1,10 @@
 package dev.univesp.grupo9.pi6.controller;
 
-import dev.univesp.grupo9.pi6.domain.noise.NoiseSampleRequestDTO;
-import dev.univesp.grupo9.pi6.domain.noise.NoiseSampleResponseDTO;
+import dev.univesp.grupo9.pi6.domain.sample.NoiseSampleRequestDTO;
+import dev.univesp.grupo9.pi6.domain.sample.NoiseSampleResponseDTO;
 import dev.univesp.grupo9.pi6.service.NoiseService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,10 +13,10 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping(value = "/noise")
-@RequiredArgsConstructor
 public class NoiseController {
 
-    private final NoiseService noiseService;
+    @Autowired
+    private NoiseService noiseService;
 
     @PostMapping
     public ResponseEntity<NoiseSampleResponseDTO> createSample(@Valid @RequestBody NoiseSampleRequestDTO dto) {

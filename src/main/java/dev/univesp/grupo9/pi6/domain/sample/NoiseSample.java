@@ -1,11 +1,10 @@
-package dev.univesp.grupo9.pi6.domain.noise;
+package dev.univesp.grupo9.pi6.domain.sample;
 
 import dev.univesp.grupo9.pi6.domain.AbstractBaseEntity;
 import dev.univesp.grupo9.pi6.domain.sensor.Sensor;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
@@ -21,7 +20,7 @@ import java.time.Instant;
                 @Index(name = "ix_noise_sensor_time", columnList = "sensor_id,captured_at")
         }
 )
-@Getter @Setter @NoArgsConstructor
+@Getter @Setter
 public class NoiseSample extends AbstractBaseEntity {
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)

@@ -1,4 +1,4 @@
-package dev.univesp.grupo9.pi6.domain.noise;
+package dev.univesp.grupo9.pi6.domain.sample;
 
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
