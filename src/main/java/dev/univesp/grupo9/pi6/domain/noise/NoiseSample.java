@@ -1,7 +1,7 @@
 package dev.univesp.grupo9.pi6.domain.noise;
 
 import dev.univesp.grupo9.pi6.domain.AbstractBaseEntity;
-import dev.univesp.grupo9.pi6.domain.Sensor;
+import dev.univesp.grupo9.pi6.domain.sensor.Sensor;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
