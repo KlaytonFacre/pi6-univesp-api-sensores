@@ -22,7 +22,7 @@ CREATE TABLE samples (
   version BIGINT NOT NULL,
 
   PRIMARY KEY (id),
-  CONSTRAINT fk_samples_sensor FOREIGN KEY (sensor_id) REFERENCES sensor (id)
+  CONSTRAINT fk_samples_sensor FOREIGN KEY (sensor_id) REFERENCES sensors (id)
 ) ENGINE=InnoDB;
 
 -- Índices para consultas eficientes

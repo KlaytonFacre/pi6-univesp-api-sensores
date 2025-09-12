@@ -3,26 +3,21 @@ package dev.univesp.grupo9.pi6.domain.noise;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 
 public record NoiseSampleRequestDTO(
-        @NotNull(message = "O sensorId é obrigatório")
-        Long sensorId,
+        @NotNull Long sensorId,
+        @NotNull BigDecimal latitude,
+        @NotNull BigDecimal longitude,
 
-        @NotNull(message = "A latitude é obrigatória")
-        @DecimalMin(value = "-90.0", message = "Latitude mínima é -90.0")
-        @DecimalMax(value = "90.0", message = "Latitude máxima é 90.0")
-        BigDecimal latitude,
+        // acústica
+        @NotNull @DecimalMin("0.0") @DecimalMax("200.0") BigDecimal laeq,
+        BigDecimal lmax,
+        BigDecimal lmin,
 
-        @NotNull(message = "A longitude é obrigatória")
-        @DecimalMin(value = "-180.0", message = "Longitude mínima é -180.0")
-        @DecimalMax(value = "180.0", message = "Longitude máxima é 180.0")
-        BigDecimal longitude,
-
-        @NotNull(message = "O nível de ruído é obrigatório")
-        @Positive(message = "O nível de ruído deve ser positivo")
-        Double noiseDb
-) {
-}
+        // janela e horário
+        Integer windowSeconds,     // default 1 se null
+        Instant capturedAt         // default now se null
+) {}
