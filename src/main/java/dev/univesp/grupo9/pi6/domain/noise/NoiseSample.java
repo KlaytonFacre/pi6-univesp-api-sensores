@@ -1,39 +1,52 @@
 package dev.univesp.grupo9.pi6.domain.noise;
 
+import dev.univesp.grupo9.pi6.domain.AbstractBaseEntity;
+import dev.univesp.grupo9.pi6.domain.Sensor;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import org.locationtech.jts.geom.Point;
 
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
+import java.time.Instant;
 
 @Entity
-@Table(name = "medicao")
-@Setter
+@Table(
+        name = "samples",
+        indexes = {
+                @Index(name = "ix_noise_sensor_time", columnList = "sensor_id,captured_at")
+        }
+)
 @Getter
+@Setter
 @NoArgsConstructor
-public class NoiseSample {
+public class NoiseSample extends AbstractBaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "sensor_id", nullable = false)
+    private Sensor sensor;
 
-    @CreationTimestamp
-    private LocalDateTime createdAt;
+    @Column(name = "captured_at", nullable = false)
+    private Instant capturedAt;
 
     @NotNull
-    private Long sensorId;
-
-    // MySQL: POINT com SRID 4326 (WGS84) - Hibernate 6+
     @JdbcTypeCode(SqlTypes.GEOMETRY)
     @Column(columnDefinition = "POINT SRID 4326", nullable = false)
     private Point local;
 
-    @Column(nullable = false)
-    private Double noiseDb;
+    @Column(name = "laeq", precision = 8, scale = 2, nullable = false)
+    private BigDecimal laeq;
+
+    @Column(name = "lmax", precision = 8, scale = 2)
+    private BigDecimal lmax;
+
+    @Column(name = "lmin", precision = 8, scale = 2)
+    private BigDecimal lmin;
+
+    @Column(name = "window_seconds", nullable = false)
+    private int windowSeconds;
 }
