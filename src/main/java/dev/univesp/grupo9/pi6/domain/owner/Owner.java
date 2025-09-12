@@ -1,6 +1,7 @@
 package dev.univesp.grupo9.pi6.domain.owner;
 
 import dev.univesp.grupo9.pi6.domain.AbstractBaseEntity;
+import dev.univesp.grupo9.pi6.domain.user.UserAccount;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

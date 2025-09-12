@@ -1,6 +1,7 @@
 package dev.univesp.grupo9.pi6.domain.sensor;
 
 import dev.univesp.grupo9.pi6.domain.AbstractBaseEntity;
+import dev.univesp.grupo9.pi6.domain.owner.Owner;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
