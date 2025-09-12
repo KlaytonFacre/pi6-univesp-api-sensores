@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -17,12 +18,12 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.List;
 
 @Configuration
-@EnableConfigurationProperties(AppProps.class)
+@EnableConfigurationProperties(ProductionUrlConfig.class)
 @Profile("prod")
-public class ProdWebConfig {
+public class SecurityConfig {
 
     @Bean
-    public OpenAPI openAPI(AppProps props) {
+    public OpenAPI openAPI(ProductionUrlConfig props) {
         OpenAPI api = new OpenAPI();
 
         if (props.getExternalUrl() != null && !props.getExternalUrl().isBlank()) {
@@ -32,19 +33,21 @@ public class ProdWebConfig {
     }
 
     @Bean
-    public CorsConfigurationSource corsConfigurationSource(AppProps props) {
+    public CorsConfigurationSource corsConfigurationSource(ProductionUrlConfig props) {
         CorsConfiguration cfg = new CorsConfiguration();
         List<String> origins = props.getCorsAllowedOrigins();
 
         if (origins != null && !origins.isEmpty()) {
             cfg.setAllowedOrigins(origins);
         } else {
-            cfg.setAllowedOrigins(List.of());
+            cfg.setAllowedOrigins(List.of()); // Se allowed origins nao estiver setada do application-prod nenhuma url estara liberada
         }
 
         cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         cfg.setAllowedHeaders(List.of("*"));
+        cfg.setExposedHeaders(List.of("Location"));
         cfg.setAllowCredentials(true);
+        cfg.setMaxAge(3600L); // cache do preflight
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", cfg);
@@ -55,18 +58,19 @@ public class ProdWebConfig {
     public SecurityFilterChain security(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
-                // Habilita a configuração de CORS definida no bean 'corsConfigurationSource'.
                 .cors(Customizer.withDefaults())
-                // Define a política de criação de sessão como 'stateless'.
-                // Isso é crucial para APIs RESTful, pois não mantêm estado de sessão entre requisições, o que melhora a escalabilidade.
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Permite acesso irrestrito aos endpoints do Swagger UI e da documentação.
+                        // Swagger aberto
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                        // Restringe todas as outras requisições para que sejam autenticadas.
-                        // Esta é a mudança mais importante para o ambiente de produção, garantindo que o resto da sua API esteja protegida.
-                        .anyRequest().authenticated()
+                        // Coleta de ruído aberta (ajuste conforme seu path real)
+                        .requestMatchers(HttpMethod.POST, "/noise").permitAll()
+                        .requestMatchers(HttpMethod.GET,  "/noise/**").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        // demais endpoints: PERMITINDO POR ENQUANTO #TODO ALTERAR DEPOIS DOS TESTES
+                        .anyRequest().permitAll()
                 );
         return http.build();
     }
+
 }
