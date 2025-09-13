@@ -65,6 +65,7 @@ public class NoiseService {
         return new NoiseSampleResponseDTO(saved);
     }
 
+    @Transactional(readOnly = true)
     public NoiseSampleResponseDTO getSampleByPublicId(UUID publicId) {
         var noiseSample = noiseSampleRepository.findByPublicId(publicId);
         return noiseSample.map(NoiseSampleResponseDTO::new).orElse(null);
