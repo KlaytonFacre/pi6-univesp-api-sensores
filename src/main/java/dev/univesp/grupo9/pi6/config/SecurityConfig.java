@@ -23,16 +23,6 @@ import java.util.List;
 public class SecurityConfig {
 
     @Bean
-    public OpenAPI openAPI(ProductionUrlConfig props) {
-        OpenAPI api = new OpenAPI();
-
-        if (props.getExternalUrl() != null && !props.getExternalUrl().isBlank()) {
-            api.setServers(List.of(new Server().url(props.getExternalUrl()).description("Produção")));
-        }
-        return api;
-    }
-
-    @Bean
     public CorsConfigurationSource corsConfigurationSource(ProductionUrlConfig props) {
         CorsConfiguration cfg = new CorsConfiguration();
         List<String> origins = props.getCorsAllowedOrigins();

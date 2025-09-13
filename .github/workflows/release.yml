@@ -45,3 +45,6 @@ jobs:
           tags: |
             ${{ vars.DOCKERHUB_REPOSITORY }}:latest
             ${{ vars.DOCKERHUB_REPOSITORY }}:${{ steps.ts.outputs.tag }}
+          build-args: |
+            BUILD_VERSION=${{ steps.ts.outputs.tag }}
+
