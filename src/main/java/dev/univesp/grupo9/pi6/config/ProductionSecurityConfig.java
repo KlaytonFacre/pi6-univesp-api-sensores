@@ -1,7 +1,5 @@
 package dev.univesp.grupo9.pi6.config;
 
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,7 +18,7 @@ import java.util.List;
 @Configuration
 @EnableConfigurationProperties(ProductionUrlConfig.class)
 @Profile("prod")
-public class SecurityConfig {
+public class ProductionSecurityConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource(ProductionUrlConfig props) {
@@ -57,8 +55,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/noise").permitAll()
                         .requestMatchers(HttpMethod.GET,  "/noise/**").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        // demais endpoints: PERMITINDO POR ENQUANTO #TODO ALTERAR DEPOIS DOS TESTES
-                        .anyRequest().permitAll()
+                        // demais endpoints
+                        .anyRequest().authenticated()
                 );
         return http.build();
     }
